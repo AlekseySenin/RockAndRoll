@@ -8,6 +8,6 @@ public class SizeChangeTrigger : Trigger
     protected override void PlayerEnter()
     {
         base.PlayerEnter();
-        Player.Instance.ChangeScale(grow);
+
     }
 }

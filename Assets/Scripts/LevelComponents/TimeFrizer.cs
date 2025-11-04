@@ -47,7 +47,8 @@ public class TimeFrizer : MonoBehaviour
         GameObject particles = Instantiate(particleSystem);
         particles.transform.position = transform.position;
         yield return new WaitForSeconds(delayTime);
-        Player.TurnSpeed *= speedScale;
+        Player.Instance.SetScaleSpeed(Player.Instance.ScaleSpeed * speedScale);
+        //Player.Instance.SetTurnSpeed(Player.Instance.TurnSpeed * speedScale);
         Time.timeScale = timeScale;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
@@ -55,7 +56,8 @@ public class TimeFrizer : MonoBehaviour
     private void UnfrizeTime()
     {
         TimeIsFrozen = false;
-        Player.TurnSpeed /= speedScale;
+        Player.Instance.SetScaleSpeed(Player.Instance.ScaleSpeed / speedScale);
+        //Player.Instance.SetTurnSpeed(Player.Instance.TurnSpeed / speedScale);
         Time.timeScale = 1;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }

@@ -41,13 +41,11 @@ public class PlayerInput : MonoBehaviour
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
-            Debug.Log(Input.GetTouch(0).position);
             switch (touch.phase)
             {
                 case TouchPhase.Began:
                     TouchStartPosition = Input.GetTouch(0).position;
                     TouchPosition = Input.GetTouch(0).position;
-                    Debug.Log(TouchStartPosition);
                     player.InpupReceived(TouchStartPosition - TouchPosition, true);
                     break;
                 case TouchPhase.Moved:
@@ -201,10 +199,10 @@ public class PlayerInput : MonoBehaviour
 
     private void ButtonControl()
     {
-        Vector2 vector = new Vector2(UIManager.Horizontal, UIManager.Vertical) * -1000;
-        Debug.Log(vector);
+        Vector2 vector = new Vector2(MovementButtonsController.Instance.Horizontal, MovementButtonsController.Instance.Vertical) ;
 
         player.InpupReceived(vector, vector.magnitude > 0.1);
+        player.JumpReceived(MovementButtonsController.Instance.Jump);
     }
 }
 

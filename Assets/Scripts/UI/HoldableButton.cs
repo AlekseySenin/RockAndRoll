@@ -1,18 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class HoldableButton : MonoBehaviour
+public class HoldableButton : Button, IPointerDownHandler, IPointerUpHandler
 {
-    // Start is called before the first frame update
-    void Start()
+    public bool IsPressed { get; private set; }
+
+    public override void OnPointerDown(PointerEventData eventData)
     {
-        
+        base.OnPointerDown(eventData);
+        IsPressed = true;
     }
 
-    // Update is called once per frame
-    void Update()
+    public override void OnPointerUp(PointerEventData eventData)
     {
-        
+        base.OnPointerUp(eventData);
+        IsPressed = false;
+    }
+
+    public override void OnPointerExit(PointerEventData eventData)
+    {
+        base.OnPointerExit(eventData);
+        IsPressed = false;
     }
 }

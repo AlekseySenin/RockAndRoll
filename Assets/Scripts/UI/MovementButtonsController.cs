@@ -5,11 +5,12 @@ using UnityEngine.UI;
 
 public class MovementButtonsController : MonoBehaviour
 {
-
-    [SerializeField] Button _upButton;
-    [SerializeField] Button _downButton;
-    [SerializeField] Button _leftButton;
-    [SerializeField] Button _rightButton;
+    [SerializeField] HoldableButton _upButton;
+    [SerializeField] HoldableButton _downButton;
+    [SerializeField] HoldableButton _leftButton;
+    [SerializeField] HoldableButton _rightButton;
+    [SerializeField] HoldableButton _jumpButton;
+    [SerializeField] float InputMultipliyer = 1000;
     public static MovementButtonsController Instance;
     public float Horizontal;
     public float Vertical;
@@ -28,23 +29,65 @@ public class MovementButtonsController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Debug.Log("h:" + Horizontal);
-        Debug.Log("v:" + Vertical);
-        Debug.Log("j:" + Jump);
+        CheckHorizontal();
+        CheckVertical();
+        CheckJump();
     }
 
-    void Move(float val) 
-    {        
-
-    }
-
-    void Scale(float val) 
+    void CheckVertical()
     {
-        
+        bool a = _upButton.IsPressed;
+        bool b = _downButton.IsPressed;
+        if (a && b)
+        {
+            Vertical = 0;
+            return;
+        }
+        if (!a && !b)
+        {
+            Vertical = 0;
+            return;
+        }
+        if (a)
+        {
+            Vertical = 1;
+            return;
+        }
+        if (b)
+        {
+            Vertical = -1;
+            return;
+        }
     }
 
-    void DoJump(bool val)
+    void CheckHorizontal()
     {
+        bool a = _leftButton.IsPressed;
+        bool b = _rightButton.IsPressed;
+        if (a && b)
+        {
+            Horizontal = 0;
+            return;
+        }
+        if (!a && !b)
+        {
+            Horizontal = 0;
+            return;
+        }
+        if (a)
+        {
+            Horizontal = 1;
+            return;
+        }
+        if (b)
+        {
+            Horizontal = -1;
+            return;
+        }
+    }
 
+    void CheckJump()
+    {
+        Jump = _jumpButton.IsPressed;
     }
 }

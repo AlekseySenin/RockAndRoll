@@ -6,9 +6,6 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public static Player Instance;
-    public static float StartTurnSpeed = 400;
-    public static float TurnSpeed = 400;
-    public static float scaleSpeed = 0.2f;
     [SerializeField] private Rigidbody2D rigidbody2;
     [SerializeField] private Transform characterContainer;
     public List<PlayerChar> chars;
@@ -18,17 +15,22 @@ public class Player : MonoBehaviour
     [SerializeField] private float minScale;
     [SerializeField] private float blindZone;
     [SerializeField] private List<float> scales;
+    [SerializeField] private float _scaleSpeed;
+    [SerializeField] private float _turnSpeed;
+    [SerializeField] private float _jumpPower = 10;
 
-    public static Action OnMovementStart;
+    public float TurnSpeed { get { return _turnSpeed; } }
+    public float ScaleSpeed { get { return _scaleSpeed; } }
+
+
     private int scaleIndex =1 ;
     private bool movementStarted;
-    public static bool continueMoveing = true;
 
+    public static bool continueMoveing = true;
+    public static Action OnMovementStart;
     public static bool ScreenPressed { get; private set; }
-    public static bool MousePressed { get; private set; }
     public static float RelativeScale { get; private set; }
     public static Vector2 TouchStartPosition { get; private set; }
-    public static Vector2 TouchPosition { get; private set; }
     public static Vector2 InputVector { get; private set; }
 
     private List<GameObject> collidingObjects = new List<GameObject>();
@@ -37,43 +39,41 @@ public class Player : MonoBehaviour
     private GameObject collidingObj;
     [SerializeField] GameObject obj;
 
+
+    private int _collisionCount;
+
     private void Awake()
     {
-        TurnSpeed = StartTurnSpeed;
         Instance = this;
         GameController.OnGameStart?.Invoke();
     }
 
-    public void ChangeScale(bool grow)
+
+    private void Start()
     {
-        if (grow)
-        {
-            if (scaleIndex < scales.Count - 1)
-            {
-                scaleIndex++;
-            }
-        }
-        else
-        {
-            if (scaleIndex > 0)
-            {
-                scaleIndex--;
-            }
-        }
-        StartCoroutine(ScaleAjustStep(grow));
+        selectedChar = chars[0];
     }
 
-    private IEnumerator ScaleAjustStep( bool grow)
+    void FixedUpdate()
     {
-        yield return null;
-        float scale = grow ? scaleSpeed : -scaleSpeed;
-        if (AjustScale(scale))
+        RelativeScale = ((Vector3.Distance(chars[0].transform.position, chars[1].transform.position) - minScale) / (maxScale - minScale));
+
+        if (ScreenPressed)
         {
-            StartCoroutine(ScaleAjustStep(grow));
+            if (Mathf.Abs(InputVector.x) > blindZone)
+            {
+                CheckForTurn();
+            }
+            if (Mathf.Abs(InputVector.y) > blindZone)
+            {
+                AjustScale(InputVector.y * _scaleSpeed);
+            }
+
+            
         }
     }
 
-    private bool AjustScale(float scaleValue)
+    private void AjustScale(float scaleValue)
     {
         if ((selectedChar.canGrow && scaleValue > 0) || (selectedChar.canShrink && scaleValue < 0))
         {
@@ -81,57 +81,21 @@ public class Player : MonoBehaviour
             unselectedChars.AddRange(chars);
             unselectedChars.Remove(selectedChar);
             Vector3 MoveVector = (unselectedChars[0].transform.position - selectedChar.transform.position).normalized;
-            if (((selectedChar.transform.position - unselectedChars[0].transform.position).magnitude < scales[scaleIndex] && scaleValue > 0)
-                || ((selectedChar.transform.position - unselectedChars[0].transform.position).magnitude > scales[scaleIndex] && scaleValue < 0))
+            var selectedCharPosition = selectedChar.transform.position;
+            var unselectedCharPosition = unselectedChars[0].transform.position;
+            var charDistance = (selectedCharPosition - unselectedCharPosition).magnitude;
+            if ((charDistance < maxScale && scaleValue > 0) ||
+                (charDistance > minScale && scaleValue < 0))
             {
+                Debug.Log(MoveVector * scaleValue);
                 unselectedChars[0].transform.position += MoveVector * scaleValue;
                 OnScale?.Invoke(scaleValue);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private bool Rescale()
-    {
-        float scaleValue = Mathf.Clamp(((InputVector.y) - blindZone) * -scaleSpeed * Time.deltaTime, -scaleSpeed, scaleSpeed);
-        if ((selectedChar.canGrow && scaleValue > 0) || (selectedChar.canShrink && scaleValue < 0))
-        {
-            List<PlayerChar> unselectedChars = new List<PlayerChar>();
-            unselectedChars.AddRange(chars);
-            unselectedChars.Remove(selectedChar);
-            foreach (var item in unselectedChars)
-            {
-                Vector3 MoveVector = (item.transform.position - selectedChar.transform.position).normalized;
-                if ((item.transform.position - selectedChar.transform.position + MoveVector * scaleValue).magnitude < maxScale
-                    && (item.transform.position - selectedChar.transform.position + MoveVector * scaleValue).magnitude > minScale)
-                {
-                    item.transform.position += MoveVector * scaleValue;
-                    OnScale?.Invoke(scaleValue);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private void Start()
-    {
-        selectedChar = chars[0];
-    }
-
-    void Update()
-    {
-        RelativeScale = ((Vector3.Distance(chars[0].transform.position, chars[1].transform.position) - minScale) / (maxScale - minScale));
-        
-        if (ScreenPressed)
-        {
-            if (Mathf.Abs(InputVector.x) > blindZone)
-            {
-                CheckForTurn();
             }
         }
     }
+
+
+
 
     void MoveFocuseToCharacter(Vector3 newPosition)
     {
@@ -151,6 +115,13 @@ public class Player : MonoBehaviour
         InputVector = vector;
     }
 
+    public void JumpReceived(bool isPressed) 
+    {
+        if(_collisionCount>0 && isPressed)
+            rigidbody2.AddForce(Vector2.up * _jumpPower, ForceMode2D.Impulse);
+    }
+
+
     private void CheckForTurn()
     {
         if (!GameController.CanPlay)
@@ -158,8 +129,10 @@ public class Player : MonoBehaviour
             return;
         }
 
-        float rotationValue =  Mathf.Clamp(((InputVector.x) - blindZone) *(TurnSpeed * Time.deltaTime * Time.timeScale), TurnSpeed * Time.deltaTime * -1, TurnSpeed * Time.deltaTime);
+        //float rotationValue =  Mathf.Clamp(((InputVector.x) - blindZone) *(_turnSpeed * Time.deltaTime * Time.timeScale), _turnSpeed * Time.deltaTime * -1, _turnSpeed * Time.deltaTime);
+        float rotationValue =  (InputVector.x *_turnSpeed);
 
+        Debug.Log(rotationValue);
         if(rotationValue > 0)
         {
             if(selectedChar == MostSideChar(true)|| MostSideChar(true) == null)
@@ -183,6 +156,14 @@ public class Player : MonoBehaviour
             }
         }
         
+    }
+
+    private void CheckForScaleChange()
+    {
+        if (true)
+        {
+            AjustScale(0.02f);
+        }
     }
 
     public PlayerChar MostSideChar(bool left)
@@ -236,6 +217,7 @@ public class Player : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        _collisionCount ++;
         if (collision.gameObject.layer == 11)
         {
             LifeManager.TakeLife();
@@ -266,6 +248,7 @@ public class Player : MonoBehaviour
 
     private void OnCollisionExit2D(Collision2D collision)
     {
+        _collisionCount--;
         if (collision.gameObject.TryGetComponent(out Platform platform))
         {
             collidingObjects.Remove(collision.gameObject);
@@ -288,5 +271,15 @@ public class Player : MonoBehaviour
     {
         selectedChar = selected;
         MoveFocuseToCharacter(selected.RelativePosition(transform.position));
+    }
+
+    public void SetTurnSpeed(float val)
+    {
+        _turnSpeed = val;   
+    }
+
+    public void SetScaleSpeed(float val)
+    {
+       _scaleSpeed = val;
     }
 }
