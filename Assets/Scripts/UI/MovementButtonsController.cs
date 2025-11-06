@@ -10,7 +10,6 @@ public class MovementButtonsController : MonoBehaviour
     [SerializeField] HoldableButton _leftButton;
     [SerializeField] HoldableButton _rightButton;
     [SerializeField] HoldableButton _jumpButton;
-    [SerializeField] float InputMultipliyer = 1000;
     public static MovementButtonsController Instance;
     public float Horizontal;
     public float Vertical;

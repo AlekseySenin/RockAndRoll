@@ -18,6 +18,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float _scaleSpeed;
     [SerializeField] private float _turnSpeed;
     [SerializeField] private float _jumpPower = 10;
+    [SerializeField] private float _pushPower = 5;
 
     public float TurnSpeed { get { return _turnSpeed; } }
     public float ScaleSpeed { get { return _scaleSpeed; } }
@@ -129,7 +130,6 @@ public class Player : MonoBehaviour
             return;
         }
 
-        //float rotationValue =  Mathf.Clamp(((InputVector.x) - blindZone) *(_turnSpeed * Time.deltaTime * Time.timeScale), _turnSpeed * Time.deltaTime * -1, _turnSpeed * Time.deltaTime);
         float rotationValue =  (InputVector.x *_turnSpeed);
 
         Debug.Log(rotationValue);
@@ -217,15 +217,11 @@ public class Player : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (collision.gameObject.TryGetComponent<Rigidbody2D>(out Rigidbody2D rb2d))
+        {
+            rb2d.AddForce(InputVector * -_pushPower, ForceMode2D.Impulse);
+        }
         _collisionCount ++;
-        if (collision.gameObject.layer == 11)
-        {
-            LifeManager.TakeLife();
-        }
-        if (collision.gameObject.TryGetComponent(out CollectibleObject collectible))
-        {
-            CollectItem(collectible);
-        }
         if (collision.gameObject.layer == 14)
         {
             GameController.OnGameWin?.Invoke();
@@ -252,7 +248,6 @@ public class Player : MonoBehaviour
         if (collision.gameObject.TryGetComponent(out Platform platform))
         {
             collidingObjects.Remove(collision.gameObject);
-            Debug.Log(collidingObjects.Count);
             if (!collidingObjects.Contains(collision.gameObject))
             {
                 platform.OnMove -= MoveWithPlatform;

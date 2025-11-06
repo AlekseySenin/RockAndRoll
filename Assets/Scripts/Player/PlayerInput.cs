@@ -13,9 +13,9 @@ public class PlayerInput : MonoBehaviour
     private bool charSelected;
     private float vertical, horizontal;
 
-    public static InputType InputType = InputType.ButtonControl;//TapOnScreenControl;
+    public static InputType InputType = InputType.ButtonControl;
 
-    private void Update()
+    private void FixedUpdate()
     {
         switch (InputType)
         {
@@ -199,7 +199,9 @@ public class PlayerInput : MonoBehaviour
 
     private void ButtonControl()
     {
-        Vector2 vector = new Vector2(MovementButtonsController.Instance.Horizontal, MovementButtonsController.Instance.Vertical) ;
+        Debug.Log(MovementButtonsController.Instance.Horizontal);
+        Debug.Log(MovementButtonsController.Instance.Vertical);
+        Vector2 vector = new Vector2(MovementButtonsController.Instance.Horizontal, MovementButtonsController.Instance.Vertical);
 
         player.InpupReceived(vector, vector.magnitude > 0.1);
         player.JumpReceived(MovementButtonsController.Instance.Jump);
