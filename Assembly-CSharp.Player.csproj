@@ -384,6 +384,9 @@
     <Reference Include="Unity.Burst.Cecil.Rocks">
       <HintPath>Library\PackageCache\com.unity.burst@1.6.6\Unity.Burst.CodeGen\Unity.Burst.Cecil.Rocks.dll</HintPath>
     </Reference>
+    <Reference Include="Zenject-usage">
+      <HintPath>Assets\Plugins\Zenject\Source\Usage\Zenject-usage.dll</HintPath>
+    </Reference>
     <Reference Include="netstandard">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2021.3.16f1\Editor\Data\NetStandard\ref\2.1.0\netstandard.dll</HintPath>
     </Reference>
@@ -795,6 +798,10 @@
     <ProjectReference Include="Unity.2D.SpriteShape.Runtime.Player.csproj">
       <Project>{F471C74B-862D-DED2-DEAA-62304110E156}</Project>
       <Name>Unity.2D.SpriteShape.Runtime.Player</Name>
+    </ProjectReference>
+    <ProjectReference Include="Zenject.Player.csproj">
+      <Project>{3C84567E-DA51-B1B3-C366-F8E142668D84}</Project>
+      <Name>Zenject.Player</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
