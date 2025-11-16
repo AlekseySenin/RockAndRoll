@@ -132,7 +132,6 @@ public class Player : MonoBehaviour
 
         float rotationValue =  (InputVector.x *_turnSpeed);
 
-        Debug.Log(rotationValue);
         if(rotationValue > 0)
         {
             if(selectedChar == MostSideChar(true)|| MostSideChar(true) == null)

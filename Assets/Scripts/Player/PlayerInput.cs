@@ -199,8 +199,7 @@ public class PlayerInput : MonoBehaviour
 
     private void ButtonControl()
     {
-        Debug.Log(MovementButtonsController.Instance.Horizontal);
-        Debug.Log(MovementButtonsController.Instance.Vertical);
+
         Vector2 vector = new Vector2(MovementButtonsController.Instance.Horizontal, MovementButtonsController.Instance.Vertical);
 
         player.InpupReceived(vector, vector.magnitude > 0.1);

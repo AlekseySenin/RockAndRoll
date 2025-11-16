@@ -52,7 +52,6 @@ public class WorldSceneManager : MonoBehaviour
 
     public static void ChangeSceneData(SceneData sceneData)
     {
-        Debug.Log(sceneData.isOpened);
         OnSceneDataChanged.Invoke(sceneData);
     }
 
